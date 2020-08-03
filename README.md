@@ -63,7 +63,7 @@ model.load_state_dict(checkpoint['model_state_dict'])
 where `n_out` should be 6269 for TC-SAY, 2765 for TC-S, 1786 for TC-A, and 1718 for TC-Y. The differences here are due to the different lengths of the datasets. To use these models for a different task, you can detach the classifier head and attach a new classifier head of the appropriate size, e.g.:
 
 ```python
-model.module.classifier = torch.nn.Linear(in_features=1280, out_features=new_n_out, bias=True).cuda()
+model.module.classifier = torch.nn.Linear(in_features=1280, out_features=new_n_out, bias=True)
 ```
 
 where `new_n_out` is the new output dimensionality. We also intend to release models fine-tuned on ImageNet in the near future for wider applicability.
