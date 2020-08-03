@@ -1,0 +1,29 @@
+#!/bin/bash
+
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --gres=gpu:4
+#SBATCH --mem=100GB
+#SBATCH --time=48:00:00
+#SBATCH --array=0
+#SBATCH --job-name=moco_temp
+#SBATCH --output=moco_temp_%A_%a.out
+
+module purge
+module load cuda-10.1
+
+python -u /misc/vlgscratch4/LakeGroup/emin/baby-vision/moco_temp.py \
+  -a mobilenet_v2 \
+  --lr 0.015 \
+  --batch-size 256 \
+  --mlp \
+  --moco-t 0.2 \
+  --aug-plus --cos \
+  --dist-url 'tcp://localhost:10001' \
+  --multiprocessing-distributed \
+  --world-size 1 --rank 0 \
+  --start-epoch 0 \
+  --resume '' \
+  '/misc/vlgscratch4/LakeGroup/emin/headcam/preprocessing/S_data_5fps_2000cls_pytorch/'
+
+echo "Done"
