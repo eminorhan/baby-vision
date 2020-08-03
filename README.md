@@ -66,7 +66,7 @@ where `n_out` should be 6269 for TC-SAY, 2765 for TC-S, 1786 for TC-A, and 1718 
 model.module.classifier = torch.nn.Linear(in_features=1280, out_features=new_n_out, bias=True).cuda()
 ```
 
-We also intend to release models fine-tuned on ImageNet in the near future for wider applicability.
+where `new_n_out` is the new output dimensionality. We also intend to release models fine-tuned on ImageNet in the near future for wider applicability.
 
 ## Acknowledgments
 
