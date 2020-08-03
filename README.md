@@ -23,8 +23,8 @@ In addition, this project also uses the Toybox dataset for evaluation purposes. 
 
 ## Code description
 
+* [`temporal_classification.py`](https://github.com/eminorhan/baby-vision/blob/master/temporal_classification.py): trains temporal classification models as described in the paper. This file uses code recycled from the PyTorch ImageNet training [example](https://github.com/pytorch/examples/tree/master/imagenet).
 * [`moco`](https://github.com/eminorhan/baby-vision/tree/master/moco) directory contains helper files for training static and temporal MoCo models. The code here was modified from [Facebook's MoCo repository](https://github.com/facebookresearch/moco).
-* [`temporal_classification.py`](https://github.com/eminorhan/baby-vision/blob/master/temporal_classification.py): trains temporal classification models as described in the paper.
 * [`moco_img.py`](https://github.com/eminorhan/baby-vision/blob/master/moco_img.py): trains an image-based MoCo model as described in the paper. This code was modified from [Facebook's MoCo repository](https://github.com/facebookresearch/moco).
 * [`moco_temp.py`](https://github.com/eminorhan/baby-vision/blob/master/moco_temp.py): trains a temporal MoCo model as described in the paper. This code was also modified from [Facebook's MoCo repository](https://github.com/facebookresearch/moco).
 * [`moco_utils.py`](https://github.com/eminorhan/baby-vision/blob/master/moco_utils.py): some utility functions for MoCo training.
@@ -70,4 +70,4 @@ where `new_n_out` is the new output dimensionality. We also intend to release mo
 
 ## Acknowledgments
 
-We are very grateful to the volunteers who contributed recordings to the SAYCam dataset. We thank Jessica Sullivan for her generous assistance with the dataset. We also thank the team behind the Toybox dataset, as well as the developers of Pytorch and torchvision for making this work possible. This project was partly funded by the NSF Award 1922658 NRT-HDR: FUTURE Foundations, Translation, and Responsibility for Data Science.
+We are very grateful to the volunteers who contributed recordings to the SAYCam dataset. We thank Jessica Sullivan for her generous assistance with the dataset. We also thank the team behind the Toybox dataset, as well as the developers of PyTorch and torchvision for making this work possible. This project was partly funded by the NSF Award 1922658 NRT-HDR: FUTURE Foundations, Translation, and Responsibility for Data Science.
