@@ -33,6 +33,7 @@ In addition, this project also uses the Toybox dataset for evaluation purposes. 
 * [`highly_activating_imgs.py`](https://github.com/eminorhan/baby-vision/blob/master/highly_activating_imgs.py): finds highly activating images for a given feature as in Figure 7b in the paper.
 * [`selectivities.py`](https://github.com/eminorhan/baby-vision/blob/master/selectivities.py): measures the class selecitivity indices of all features in a given layer as in Figure 7a in the paper.
 * [`hog_baseline.py`](https://github.com/eminorhan/baby-vision/blob/master/hog_baseline.py): runs the HOG baseline model as described in the paper.
+* [`read_saycam.py`](https://github.com/eminorhan/baby-vision/blob/master/read_saycam.py): SAYCam video-to-image reader.
 
 For specific usage examples, please see the slurm scripts provided in the [`scripts`](https://github.com/eminorhan/baby-vision/tree/master/scripts) directory.
 
