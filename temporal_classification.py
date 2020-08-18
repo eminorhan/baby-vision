@@ -21,8 +21,8 @@ import torchvision.models as models
 
 parser = argparse.ArgumentParser(description='Temporal classification with headcam data')
 parser.add_argument('data', metavar='DIR', help='path to dataset')
-parser.add_argument('-j', '--workers', default=8, type=int, metavar='N', help='number of data loading workers (default:'
-                                                                              ' 8)')
+parser.add_argument('-j', '--workers', default=16, type=int, metavar='N', help='number of data loading workers (default'
+                                                                               ':16)')
 parser.add_argument('--epochs', default=6, type=int, metavar='N', help='number of total epochs to run')
 parser.add_argument('--start-epoch', default=0, type=int, metavar='N', help='manual epoch number (useful on restarts)')
 parser.add_argument('-b', '--batch-size', default=732, type=int, metavar='N',
@@ -32,7 +32,7 @@ parser.add_argument('--lr', '--learning-rate', default=0.0005, type=float, metav
                     dest='lr')
 parser.add_argument('--wd', '--weight-decay', default=0.0, type=float, metavar='W', help='weight decay (default: 0)',
                     dest='weight_decay')
-parser.add_argument('-p', '--print-freq', default=100, type=int, metavar='N', help='print frequency (default: 100)')
+parser.add_argument('-p', '--print-freq', default=250, type=int, metavar='N', help='print frequency (default: 250)')
 parser.add_argument('--resume', default='', type=str, metavar='PATH', help='path to latest checkpoint (default: none)')
 parser.add_argument('--world-size', default=-1, type=int, help='number of nodes for distributed training')
 parser.add_argument('--rank', default=-1, type=int, help='node rank for distributed training')
@@ -133,7 +133,7 @@ def main_worker(gpu, ngpus_per_node, args):
 
     torch.save({'acc1_list': acc1_list,
                 'model_state_dict': model.state_dict(),
-                'optimizer_state_dict': optimizer.state_dict()}, os.path.join(basedir, savefile_name))
+                'optimizer_state_dict': optimizer.state_dict()}, savefile_name)
 
 
 def train(train_loader, model, criterion, optimizer, epoch, args):
