@@ -2,7 +2,8 @@
 
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
-#SBATCH --gres=gpu:4
+#SBATCH --exclude=loopy8
+#SBATCH --gres=gpu:2080ti:4
 #SBATCH --mem=100GB
 #SBATCH --time=48:00:00
 #SBATCH --array=0

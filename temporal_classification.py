@@ -21,6 +21,8 @@ import torchvision.models as models
 
 parser = argparse.ArgumentParser(description='Temporal classification with headcam data')
 parser.add_argument('data', metavar='DIR', help='path to dataset')
+parser.add_argument('--model', default='mobilenet_v2', choices=['mnasnet1_3', 'mnasnet1_0', 'mnasnet0_75', 'mnasnet0_5',
+                                                              'mobilenet_v2'], help='model')
 parser.add_argument('-j', '--workers', default=16, type=int, metavar='N', help='number of data loading workers (default'
                                                                                ':16)')
 parser.add_argument('--epochs', default=6, type=int, metavar='N', help='number of total epochs to run')
@@ -77,7 +79,8 @@ def main_worker(gpu, ngpus_per_node, args):
     if args.gpu is not None:
         print("Use GPU: {} for training".format(args.gpu))
 
-    model = models.mobilenet_v2(pretrained=False)
+    print('Model:', args.model)
+    model = models.__dict__[args.model](pretrained=False)
     model.classifier = torch.nn.Linear(in_features=1280, out_features=args.n_out, bias=True)
 
     # DataParallel will divide and allocate batch_size to all available GPUs
@@ -98,7 +101,7 @@ def main_worker(gpu, ngpus_per_node, args):
             print("=> no checkpoint found at '{}'".format(args.resume))
 
     # Data loading code
-    savefile_name = 'mobilenetV2_augmentation_' + str(args.augmentation) + '.tar'
+    savefile_name = args.model + '_augmentation_' + str(args.augmentation) + '.tar'
 
     normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
                                      std=[0.229, 0.224, 0.225])
