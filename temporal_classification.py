@@ -21,14 +21,14 @@ import torchvision.models as models
 
 parser = argparse.ArgumentParser(description='Temporal classification with headcam data')
 parser.add_argument('data', metavar='DIR', help='path to dataset')
-parser.add_argument('--model', default='mobilenet_v2', choices=['mnasnet1_3', 'mnasnet1_0', 'mnasnet0_75', 'mnasnet0_5',
-                                                              'mobilenet_v2'], help='model')
+parser.add_argument('--model', default='resnet50', choices=['resnet50', 'resnext101_32x8d', 'resnext50_32x4d',
+                                                            'mobilenet_v2'], help='model')
 parser.add_argument('-j', '--workers', default=16, type=int, metavar='N', help='number of data loading workers (default'
                                                                                ':16)')
-parser.add_argument('--epochs', default=6, type=int, metavar='N', help='number of total epochs to run')
+parser.add_argument('--epochs', default=10, type=int, metavar='N', help='number of total epochs to run')
 parser.add_argument('--start-epoch', default=0, type=int, metavar='N', help='manual epoch number (useful on restarts)')
-parser.add_argument('-b', '--batch-size', default=732, type=int, metavar='N',
-                    help='mini-batch size (default: 732), this is the total batch size of all GPUs on the current node '
+parser.add_argument('-b', '--batch-size', default=1024, type=int, metavar='N',
+                    help='mini-batch size (default: 1024), this is the total batch size of all GPUs on the current node '
                          'when using Data Parallel or Distributed Data Parallel')
 parser.add_argument('--lr', '--learning-rate', default=0.0005, type=float, metavar='LR', help='initial learning rate',
                     dest='lr')
@@ -81,7 +81,10 @@ def main_worker(gpu, ngpus_per_node, args):
 
     print('Model:', args.model)
     model = models.__dict__[args.model](pretrained=False)
-    model.classifier = torch.nn.Linear(in_features=1280, out_features=args.n_out, bias=True)
+    if args.model.startswith('res'):
+        model.fc = torch.nn.Linear(in_features=2048, out_features=args.n_out, bias=True)
+    else:
+        model.classifier = torch.nn.Linear(in_features=1280, out_features=args.n_out, bias=True)
 
     # DataParallel will divide and allocate batch_size to all available GPUs
     model = torch.nn.DataParallel(model).cuda()
@@ -103,22 +106,26 @@ def main_worker(gpu, ngpus_per_node, args):
     # Data loading code
     savefile_name = args.model + '_augmentation_' + str(args.augmentation) + '.tar'
 
-    normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
-                                     std=[0.229, 0.224, 0.225])
+    normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 
     if args.augmentation:
         train_dataset = datasets.ImageFolder(
             args.data,
-            transforms.Compose([transforms.RandomApply([transforms.ColorJitter(0.8, 0.8, 0.8, 0.2)], p=0.8),
-                                transforms.RandomGrayscale(p=0.2),
-                                transforms.ToTensor(),
-                                normalize])
+            transforms.Compose([
+                transforms.RandomHorizontalFlip(),
+                transforms.RandomApply([transforms.ColorJitter(0.8, 0.8, 0.8, 0.2)], p=0.8),
+                transforms.RandomGrayscale(p=0.2),
+                transforms.ToTensor(),
+                normalize
+            ])
         )
     else:
         train_dataset = datasets.ImageFolder(
             args.data,
-            transforms.Compose([transforms.ToTensor(),
-                                normalize])
+            transforms.Compose([
+                transforms.ToTensor(),
+                normalize
+            ])
         )
 
     train_loader = torch.utils.data.DataLoader(

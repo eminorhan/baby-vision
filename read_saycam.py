@@ -9,7 +9,7 @@ parser = argparse.ArgumentParser(description='Read SAYCam videos')
 parser.add_argument('data', metavar='DIR', help='path to SAYCam videos')
 parser.add_argument('--save-dir', default='', type=str, help='save directory')
 parser.add_argument('--fps', default=5, type=int, help='sampling rate (frames per second)')
-parser.add_argument('--seg-len', default=576, type=int, help='segment length (seconds)')
+parser.add_argument('--seg-len', default=288, type=int, help='segment length (seconds)')
 
 
 if __name__ == '__main__':
@@ -45,6 +45,7 @@ if __name__ == '__main__':
         saved_frames = frame_count // sample_rate + 1
 
         print('Total frame count: ', frame_count)
+        print('Native frame rate: ', frame_rate)
 
         fc = 0
         ret = True

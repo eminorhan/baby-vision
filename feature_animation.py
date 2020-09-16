@@ -1,4 +1,4 @@
-'''Plots spatial attention maps'''
+'''Animating features on short clips'''
 import os
 import argparse
 import numpy as np
@@ -9,6 +9,9 @@ import torchvision.models as models
 from torchvision.utils import make_grid
 import matplotlib as mp
 import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+import matplotlib.cm as cm
+
 
 def extract_map_layer_7x7(mobilenetV2_model):
     layer_list = list(mobilenetV2_model.module.features.children())
@@ -45,13 +48,13 @@ def load_data(data_dir, args):
     )
 
     train_loader = torch.utils.data.DataLoader(
-        train_dataset, batch_size=args.batch_size, shuffle=True,
+        train_dataset, batch_size=args.batch_size, shuffle=False,
         num_workers=args.workers, pin_memory=True, sampler=None
     )
 
     return train_loader
 
-def predict(data_loader, model, weights, batch_size):
+def predict(data_loader, model, batch_size, feature_idx):
 
     # switch to evaluate mode
     model.eval()
@@ -60,26 +63,28 @@ def predict(data_loader, model, weights, batch_size):
         for i, (images, target) in enumerate(data_loader):
             images = images.cuda()
 
-            print(images.size())
-
             # compute predictions
-            pred = model(images)
+            preds = model(images)
+            preds = preds[:, feature_idx, :, :]
 
-            if i == 0:
-                break
+            print('Images shape:', images.size())
+            print('Preds shape:', preds.size())
 
-    linear_combination_map = torch.einsum('ijkl,j->ikl', pred, weights)
-
+    # Copy activation map to all channels and upsample to image size
     x = torch.zeros(batch_size, 3, 7, 7)
-    x[:, 0, :, :] = linear_combination_map
-    x[:, 1, :, :] = linear_combination_map
-    x[:, 2, :, :] = linear_combination_map
+    x[:, 0, :, :] = preds
+    x[:, 1, :, :] = preds
+    x[:, 2, :, :] = preds
 
     m = torch.nn.Upsample(scale_factor=32, mode='bicubic')
-    mm = m(x).cuda()
-    mm = torch.sigmoid(10. * mm / torch.std(mm))
 
-    return mm * images
+    upsampled_maps = m(x).cuda()
+    # upsampled_maps = torch.sigmoid(10. * upsampled_maps / torch.std(upsampled_maps))
+
+    upsampled_maps = upsampled_maps.cpu().numpy()
+    images = images.cpu().numpy()
+
+    return  upsampled_maps, images
 
 def show_img(ax, img, save_name):
     '''Save maps'''
@@ -107,28 +112,50 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='Plot spatial attention maps')
     parser.add_argument('data', metavar='DIR', help='path to dataset')
-    parser.add_argument('--workers', default=4, type=int, help='number of data loading workers (default: 4)')
-    parser.add_argument('--batch-size', default=36, type=int, help='mini-batch size, this is the total '
+    parser.add_argument('--workers', default=16, type=int, help='number of data loading workers (default: 4)')
+    parser.add_argument('--batch-size', default=900, type=int, help='mini-batch size, this is the total '
                                                                     'batch size of all GPUs on the current node when '
                                                                     'using Data Parallel or Distributed Data Parallel')
     parser.add_argument('--model-path', default='', type=str, help='path to model checkpoint (default: '
                                                                    'ImageNet-pretrained)')
-    parser.add_argument('--n_out', default=1000, type=int, help='output dim of pre-trained model')
-    parser.add_argument('--class-idx', default=6, type=int, help='class index for which the maps will be computed')
+    parser.add_argument('--n_out', default=2765, type=int, help='output dim of pre-trained model')
+    parser.add_argument('--feature-idx', default=1, type=int, help='feature index for which the maps will be computed')
 
     args = parser.parse_args()
 
     model = load_model(args)
     map_layer = extract_map_layer_7x7(model)
 
-    weights = model.module.classifier.weight.data[args.class_idx, :].cuda()
-
     data_loader = load_data(args.data, args)
-    preds = predict(data_loader, map_layer, weights, args.batch_size)
+    preds, images = predict(data_loader, map_layer, args.batch_size, args.feature_idx)
 
-    print('Preds shape:', preds.shape)
+    preds = preds - preds.min()
+    preds = preds / preds.max()
+    preds = np.uint8(255 * preds)
 
-    fig_pred = plt.figure(figsize=(16, 16), dpi=300)
-    ax_pred = fig_pred.add_subplot('111')
-    grid_pred = make_grid(preds, nrow=12, padding=1, normalize=True, scale_each=False)
-    show_img(ax_pred, grid_pred, 'linear_combination_maps_class_' + str(args. class_idx) + '.pdf')
+    images = images - images.min()
+    images = images / images.max()
+    # images = np.uint8(255 * images)
+
+    fig, ax = plt.subplots()
+
+    jet = cm.get_cmap("jet")
+    jet_colors = jet(np.arange(256))[:, :3]
+    preds = jet_colors[preds[:,0,:,:]]
+
+    masked_imgs = 1.0 * preds + np.transpose(images, (0, 2, 3, 1))
+    masked_imgs = np.uint8(255 * masked_imgs / masked_imgs.max())
+
+    imgs = []
+    for i in range(900):
+        im = ax.imshow(masked_imgs[i])
+
+        if i == 0:
+            im = ax.imshow(masked_imgs[i])
+
+        imgs.append([im])
+
+    ani = animation.ArtistAnimation(fig, imgs, interval=200, blit=True, repeat_delay=1000)
+
+    # To save the animation, use e.g.
+    ani.save("feature_animation.mp4")
