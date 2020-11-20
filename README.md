@@ -44,7 +44,7 @@ For specific usage examples, please see the slurm scripts provided in the [`scri
 ### ResNeXt 
 Since the publication of the paper, we have found that training larger capacity models for longer with the temporal classification objective significantly improves the evaluation results. Hence, we provide below pre-trained `resnext50_32x4d` type models that are currently our best models trained with the SAYCam data. We encourage people to use these new models instead of the `mobilenet_v2` type models reported in the paper (the pre-trained `mobilenet_v2` models reported in the paper are also provided below for the record). 
 
-Four pre-trained `resnext50_32x4d` models are provided here: temporal classification models trained on data from the individual children in the SAYCam dataset (`TC-S-resnext`, `TC-A-resnext`, `TC-Y-resnext`) and a temporal classification model trained on data from all three children (`TC-SAY-resnext`). These models were all trained on the SAYCam dataset for 11 epochs (with batch size 256) with the following data augmentation pipeline:
+Four pre-trained `resnext50_32x4d` models are provided here: temporal classification models trained on data from the individual children in the SAYCam dataset (`TC-S-resnext`, `TC-A-resnext`, `TC-Y-resnext`) and a temporal classification model trained on data from all three children (`TC-SAY-resnext`). These models were all trained for 11 epochs (with batch size 256) with the following data augmentation pipeline:
 
 ```python
 import torchvision.transforms as tr
