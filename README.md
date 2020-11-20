@@ -42,7 +42,9 @@ For specific usage examples, please see the slurm scripts provided in the [`scri
 ## Pre-trained models
 
 ### ResNeXt 
-Since the publication of the paper, we have found that training larger capacity models for longer with the temporal classification objective significantly improves the evaluation results. Hence, we provide below pre-trained `resnext50_32x4d` type models that are currently our best models. We encourage people to use these new models instead of the `mobilenet_v2` type models reported in the paper (the pre-trained `mobilenet_v2` models reported in the paper are also provided below for the record). Four pre-trained `resnext50_32x4d` models are provided here: temporal classification models trained on data from the individual children in the SAYCam dataset (`TC-S-resnext`, `TC-A-resnext`, `TC-Y-resnext`) and a temporal classification model trained on data from all three children (`TC-SAY-resnext`). These models were all trained on the SAYCam dataset for 11 epochs (with batch size 256) with the following data augmentation pipeline:
+Since the publication of the paper, we have found that training larger capacity models for longer with the temporal classification objective significantly improves the evaluation results. Hence, we provide below pre-trained `resnext50_32x4d` type models that are currently our best models. We encourage people to use these new models instead of the `mobilenet_v2` type models reported in the paper (the pre-trained `mobilenet_v2` models reported in the paper are also provided below for the record). 
+
+Four pre-trained `resnext50_32x4d` models are provided here: temporal classification models trained on data from the individual children in the SAYCam dataset (`TC-S-resnext`, `TC-A-resnext`, `TC-Y-resnext`) and a temporal classification model trained on data from all three children (`TC-SAY-resnext`). These models were all trained on the SAYCam dataset for 11 epochs (with batch size 256) with the following data augmentation pipeline:
 
 ```python
 import torchvision.transforms as tr
@@ -68,7 +70,7 @@ Here are some evaluation results for these `resnext50_32x4d` models (to download
 
 Here, **ImageNet (*linear*)** refers to the top-1 validation accuracy on ImageNet with only a linear classifier trained on top of the frozen features, and **ImageNet (*1% ft + linear*)** is similar but with the entire model first fine-tuned on 1% of the ImageNet training data (~12800 images). Note that these are results from a single run, so you might observe slightly different numbers.
 
-These models come with the classifier heads attached. To load these models, please do something along the lines of:
+These models come with the temporal classification heads attached. To load these models, please do something along the lines of:
 
 ```python
 import torch
@@ -82,7 +84,7 @@ checkpoint = torch.load('TC-SAY-resnext.tar')
 model.load_state_dict(checkpoint['model_state_dict'])
 ```
 
-where `n_out` should be 6269 for `TC-SAY-resnext`, 2765 for `TC-S-resnext`, 1786 for `TC-A-resnext`, and 1718 for `TC-Y-resnext`. 
+where `n_out` should be 6269 for `TC-SAY-resnext`, 2765 for `TC-S-resnext`, 1786 for `TC-A-resnext`, and 1718 for `TC-Y-resnext`. The differences here are due to the different lengths of the datasets. 
 
 In addition, please find below the best performing ImageNet models reported above: a model with a linear classifier trained on top of the frozen features of `TC-SAY-resnext` (`TC-SAY-resnext-IN-linear`) and a model that was first fine-tuned with 1% of the ImageNet training data (`TC-SAY-resnext-IN-1pt-linear`):
 
