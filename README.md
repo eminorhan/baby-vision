@@ -9,7 +9,7 @@ Orhan AE, Gupta VV, Lake BM (2020) [Self-supervised learning through the eyes of
 * pytorch == 1.5.1
 * torchvision == 0.6.1
 
-Slightly older versions will probably work fine as well.
+Slightly older or newer versions will probably work fine as well.
 
 ## Datasets
 
