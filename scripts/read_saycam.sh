@@ -13,9 +13,9 @@ module purge
 module load cuda-10.1
 
 python -u /misc/vlgscratch4/LakeGroup/emin/baby-vision/read_saycam.py \
-  --save-dir '/misc/vlgscratch4/LakeGroup/emin/headcam/preprocessing/Y_data_5fps_1000cls_pytorch/' \
-  --fps 5 \
-  --seg-len 576 \
-  '/misc/vlgscratch4/LakeGroup/emin/headcam/data_2/Y'
+  --save-dir '/misc/vlgscratch4/LakeGroup/emin/headcam/preprocessing/S_1fps_288s' \
+  --fps 1 \
+  --seg-len 288 \
+  '/misc/vlgscratch4/LakeGroup/emin/headcam/data_2/S'
 
 echo "Done"

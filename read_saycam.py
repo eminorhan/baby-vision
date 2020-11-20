@@ -28,11 +28,11 @@ if __name__ == '__main__':
     edge_filter = False
     n_imgs_per_class = args.seg_len * args.fps
 
-    curr_dir_name = args.save_dir + 'class_%i' % class_counter
+    curr_dir_name = os.path.join(args.save_dir, 'class_{:04d}'.format(class_counter))
     os.mkdir(curr_dir_name)
 
     for file_indx in file_list:
-        file_name = args.data + '/' + file_indx
+        file_name = os.path.join(args.data, file_indx)
 
         cap = cv2.VideoCapture(file_name)
         frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
@@ -41,8 +41,7 @@ if __name__ == '__main__':
         frame_rate = int(cap.get(cv2.CAP_PROP_FPS))
 
         # take every sample_rate frames (30: 1fps, 15: 2fps, 10: 3fps, 6: 5fps, 5: 6fps, 3: 10fps, 2: 15fps, 1: 30fps)
-        sample_rate = frame_rate // args.fps
-        saved_frames = frame_count // sample_rate + 1
+        sample_rate = frame_rate // args.fps + 1
 
         print('Total frame count: ', frame_count)
         print('Native frame rate: ', frame_rate)
@@ -77,13 +76,13 @@ if __name__ == '__main__':
                     img_max = cropped_frame.max()
                     cropped_frame = np.uint8(255 * (cropped_frame - img_min) / (img_max - img_min))
 
-                cv2.imwrite(os.path.join(curr_dir_name, 'img_%i.jpeg' % img_counter), cropped_frame[::-1, ::-1, :])
+                cv2.imwrite(os.path.join(curr_dir_name, 'img_{:04d}.jpeg'.format(img_counter)), cropped_frame[::-1, ::-1, :])
                 img_counter += 1
 
                 if img_counter == n_imgs_per_class:
                     img_counter = 0
                     class_counter += 1
-                    curr_dir_name = args.save_dir + 'class_%i' % class_counter
+                    curr_dir_name = os.path.join(args.save_dir, 'class_{:04d}'.format(class_counter))
                     os.mkdir(curr_dir_name)
 
             fc += 1
@@ -91,4 +90,4 @@ if __name__ == '__main__':
         cap.release()
 
         file_counter += 1
-        print('Completed video %i of %i' % (file_counter, len(file_list)))
+        print('Completed video {:4d} of {:4d}'.format(file_counter, len(file_list)))

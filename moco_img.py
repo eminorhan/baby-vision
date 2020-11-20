@@ -39,7 +39,7 @@ parser.add_argument('-a', '--arch', metavar='ARCH', default='resnet50',
                         ' (default: resnet50)')
 parser.add_argument('-j', '--workers', default=32, type=int, metavar='N',
                     help='number of data loading workers (default: 32)')
-parser.add_argument('--epochs', default=6, type=int, metavar='N',
+parser.add_argument('--epochs', default=12, type=int, metavar='N',
                     help='number of total epochs to run')
 parser.add_argument('--start-epoch', default=0, type=int, metavar='N',
                     help='manual epoch number (useful on restarts)')
@@ -50,7 +50,7 @@ parser.add_argument('-b', '--batch-size', default=256, type=int,
                          'using Data Parallel or Distributed Data Parallel')
 parser.add_argument('--lr', '--learning-rate', default=0.03, type=float,
                     metavar='LR', help='initial learning rate', dest='lr')
-parser.add_argument('--schedule', default=[5, 10], nargs='*', type=int,
+parser.add_argument('--schedule', default=[11, 20], nargs='*', type=int,
                     help='learning rate schedule (when to drop lr by 10x)')
 parser.add_argument('--momentum', default=0.9, type=float, metavar='M',
                     help='momentum of SGD solver')
@@ -136,6 +136,8 @@ def main():
 def main_worker(gpu, ngpus_per_node, args):
 
     args.gpu = gpu
+
+    print(args)
 
     # suppress printing if not master
     if args.multiprocessing_distributed and args.gpu != 0:

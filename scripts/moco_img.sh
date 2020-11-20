@@ -1,10 +1,9 @@
 #!/bin/bash
 
 #SBATCH --nodes=1
-#SBATCH --ntasks=1
-#SBATCH --exclude=loopy8
-#SBATCH --gres=gpu:2080ti:4
-#SBATCH --mem=100GB
+#SBATCH --ntasks=16
+#SBATCH --gres=gpu:titanrtx:4
+#SBATCH --mem=150GB
 #SBATCH --time=48:00:00
 #SBATCH --array=0
 #SBATCH --job-name=moco_img
@@ -14,7 +13,7 @@ module purge
 module load cuda-10.1
 
 python -u /misc/vlgscratch4/LakeGroup/emin/baby-vision/moco_img.py \
-  -a mobilenet_v2 \
+  -a resnext50_32x4d \
   --lr 0.015 \
   --batch-size 256 \
   --mlp \

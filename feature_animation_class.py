@@ -75,7 +75,7 @@ def load_data(data_dir, args):
 
     return train_loader
 
-def predict(data_loader, model, batch_size, feature_idx):
+def predict(data_loader, model, batch_size, weights):
 
     # switch to evaluate mode
     model.eval()
@@ -89,7 +89,6 @@ def predict(data_loader, model, batch_size, feature_idx):
 
             # compute predictions
             preds = model(images)
-            preds = preds[:, feature_idx, :, :]
             preds_list.append(preds)
             imgs_list.append(images)
 
@@ -99,11 +98,13 @@ def predict(data_loader, model, batch_size, feature_idx):
     print('Images shape:', images.size())
     print('Preds shape:', preds.size())
 
+    linear_combination_map = torch.einsum('ijkl,j->ikl', preds, weights)
+
     # Copy activation map to all channels and upsample to image size
     x = torch.zeros(preds.size()[0], 3, 7, 7)
-    x[:, 0, :, :] = preds
-    x[:, 1, :, :] = preds
-    x[:, 2, :, :] = preds
+    x[:, 0, :, :] = linear_combination_map
+    x[:, 1, :, :] = linear_combination_map
+    x[:, 2, :, :] = linear_combination_map
 
     m = torch.nn.Upsample(scale_factor=32, mode='bicubic')
 
@@ -142,21 +143,23 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Plot spatial attention maps')
     parser.add_argument('data', metavar='DIR', help='path to dataset')
     parser.add_argument('--workers', default=32, type=int, help='number of data loading workers (default: 4)')
-    parser.add_argument('--batch-size', default=900, type=int, help='mini-batch size, this is the total '
+    parser.add_argument('--batch-size', default=500, type=int, help='mini-batch size, this is the total '
                                                                     'batch size of all GPUs on the current node when '
                                                                     'using Data Parallel or Distributed Data Parallel')
     parser.add_argument('--model-path', default='', type=str, help='path to model checkpoint (default: '
                                                                    'ImageNet-pretrained)')
-    parser.add_argument('--n_out', default=2765, type=int, help='output dim of pre-trained model')
-    parser.add_argument('--feature-idx', default=1, type=int, help='feature index for which the maps will be computed')
+    parser.add_argument('--n_out', default=26, type=int, help='output dim of pre-trained model')
+    parser.add_argument('--class-idx', default=1, type=int, help='class index for which the maps will be computed')
 
     args = parser.parse_args()
 
     model = load_model(args)
     map_layer = extract_map_layer_7x7(model)
 
+    weights = model.module.classifier.weight.data[args.class_idx, :].cuda()
+
     data_loader = load_data(args.data, args)
-    preds, images = predict(data_loader, map_layer, args.batch_size, args.feature_idx)
+    preds, images = predict(data_loader, map_layer, args.batch_size, weights)
 
     preds = preds - preds.min()
     preds = preds / preds.max()
@@ -168,7 +171,7 @@ if __name__ == '__main__':
 
     fig, ax = plt.subplots()
     ax.set_axis_off()
-    ax.set_title('Feature: ' + str(args.feature_idx))
+    ax.set_title('Class: ' + str(args.class_idx))
 
     jet = cm.get_cmap("jet")
     jet_colors = jet(np.arange(256))[:, :3]
@@ -178,7 +181,7 @@ if __name__ == '__main__':
     masked_imgs = np.uint8(255 * masked_imgs / masked_imgs.max())
 
     imgs = []
-    for i in range(900):
+    for i in range(200):
         im = ax.imshow(masked_imgs[i])
 
         if i == 0:
@@ -189,4 +192,4 @@ if __name__ == '__main__':
     ani = animation.ArtistAnimation(fig, imgs, interval=200, blit=True, repeat_delay=1000)
 
     # To save the animation, use e.g.
-    ani.save('mob_feature_animation_' + str(args.feature_idx) + '.mp4')
+    ani.save('computers_feature_animation_' + str(args.class_idx) + '.mp4')

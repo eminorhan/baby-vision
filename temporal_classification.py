@@ -17,24 +17,25 @@ import torch.utils.data.distributed
 import torchvision.transforms as transforms
 import torchvision.datasets as datasets
 import torchvision.models as models
+from utils import GaussianBlur
 
 
 parser = argparse.ArgumentParser(description='Temporal classification with headcam data')
 parser.add_argument('data', metavar='DIR', help='path to dataset')
 parser.add_argument('--model', default='resnet50', choices=['resnet50', 'resnext101_32x8d', 'resnext50_32x4d',
                                                             'mobilenet_v2'], help='model')
-parser.add_argument('-j', '--workers', default=16, type=int, metavar='N', help='number of data loading workers (default'
+parser.add_argument('-j', '--workers', default=32, type=int, metavar='N', help='number of data loading workers (default'
                                                                                ':16)')
-parser.add_argument('--epochs', default=10, type=int, metavar='N', help='number of total epochs to run')
+parser.add_argument('--epochs', default=12, type=int, metavar='N', help='number of total epochs to run')
 parser.add_argument('--start-epoch', default=0, type=int, metavar='N', help='manual epoch number (useful on restarts)')
-parser.add_argument('-b', '--batch-size', default=1024, type=int, metavar='N',
-                    help='mini-batch size (default: 1024), this is the total batch size of all GPUs on the current node '
+parser.add_argument('-b', '--batch-size', default=256, type=int, metavar='N',
+                    help='mini-batch size (default: 256), this is the total batch size of all GPUs on the current node '
                          'when using Data Parallel or Distributed Data Parallel')
 parser.add_argument('--lr', '--learning-rate', default=0.0005, type=float, metavar='LR', help='initial learning rate',
                     dest='lr')
 parser.add_argument('--wd', '--weight-decay', default=0.0, type=float, metavar='W', help='weight decay (default: 0)',
                     dest='weight_decay')
-parser.add_argument('-p', '--print-freq', default=250, type=int, metavar='N', help='print frequency (default: 250)')
+parser.add_argument('-p', '--print-freq', default=5000, type=int, metavar='N', help='print frequency (default: 250)')
 parser.add_argument('--resume', default='', type=str, metavar='PATH', help='path to latest checkpoint (default: none)')
 parser.add_argument('--world-size', default=-1, type=int, help='number of nodes for distributed training')
 parser.add_argument('--rank', default=-1, type=int, help='node rank for distributed training')
@@ -53,6 +54,8 @@ parser.add_argument('--augmentation', default=True, action='store_false', help='
 
 def main():
     args = parser.parse_args()
+
+    print(args)
 
     if args.gpu is not None:
         warnings.warn('You have chosen a specific GPU. This will completely disable data parallelism.')
@@ -103,8 +106,7 @@ def main_worker(gpu, ngpus_per_node, args):
         else:
             print("=> no checkpoint found at '{}'".format(args.resume))
 
-    # Data loading code
-    savefile_name = args.model + '_augmentation_' + str(args.augmentation) + '.tar'
+    savefile_name = args.model + '_augmentstrong_batch256_' + str(args.augmentation) + '_Y_5_288'
 
     normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 
@@ -112,12 +114,12 @@ def main_worker(gpu, ngpus_per_node, args):
         train_dataset = datasets.ImageFolder(
             args.data,
             transforms.Compose([
-                transforms.RandomHorizontalFlip(),
-                transforms.RandomApply([transforms.ColorJitter(0.8, 0.8, 0.8, 0.2)], p=0.8),
-                transforms.RandomGrayscale(p=0.2),
-                transforms.ToTensor(),
-                normalize
-            ])
+                        transforms.RandomApply([transforms.ColorJitter(0.8, 0.8, 0.8, 0.4)], p=0.9),
+                        transforms.RandomGrayscale(p=0.2),
+                        transforms.RandomApply([GaussianBlur([.1, 2.])], p=0.5),
+                        transforms.RandomHorizontalFlip(),
+                        transforms.ToTensor(),
+                        normalize])
         )
     else:
         train_dataset = datasets.ImageFolder(
@@ -141,9 +143,9 @@ def main_worker(gpu, ngpus_per_node, args):
         acc1 = train(train_loader, model, criterion, optimizer, epoch, args)
         acc1_list.append(acc1)
 
-    torch.save({'acc1_list': acc1_list,
-                'model_state_dict': model.state_dict(),
-                'optimizer_state_dict': optimizer.state_dict()}, savefile_name)
+        torch.save({'acc1_list': acc1_list,
+                    'model_state_dict': model.state_dict(),
+                    'optimizer_state_dict': optimizer.state_dict()}, savefile_name + '_epoch_' + str(epoch) + '.tar')
 
 
 def train(train_loader, model, criterion, optimizer, epoch, args):

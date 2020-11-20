@@ -13,6 +13,6 @@
 module purge
 module load cuda-10.1
 
-python -u /misc/vlgscratch4/LakeGroup/emin/baby-vision/feature_animation.py '/misc/vlgscratch4/LakeGroup/emin/headcam/preprocessing/feature_animation_imgs/' --model-path '/misc/vlgscratch4/LakeGroup/emin/headcam/preprocessing/self_supervised_models/TC-S.tar' --batch-size 900 --n_out 2765 --feature-idx 900
+python -u /misc/vlgscratch4/LakeGroup/emin/baby-vision/feature_animation_class.py '/misc/vlgscratch4/LakeGroup/emin/headcam/preprocessing/feature_animation_computers/' --model-path '/misc/vlgscratch4/LakeGroup/emin/headcam/preprocessing/self_supervised_models/TC-S_labeledS_5_iid.tar' --batch-size 200 --n_out 26 --class-idx 6
 
 echo "Done"
