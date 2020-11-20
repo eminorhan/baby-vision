@@ -2,7 +2,7 @@
 
 This repository contains code for reproducing the results reported in the following paper:
 
-Orhan AE, Gupta VV, Lake BM (2020) [Self-supervised learning through the eyes of a child.](https://arxiv.org/abs/2007.16189) arXiv:2007.16289.
+Orhan AE, Gupta VV, Lake BM (2020) [Self-supervised learning through the eyes of a child.](https://arxiv.org/abs/2007.16189) *Advances in Neural Information Processing Systems 34 (NeurIPS 2020)*.
 
 ## Requirements
 
