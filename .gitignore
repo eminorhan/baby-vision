@@ -3,4 +3,6 @@
 *.mp4
 
 # Directories
+/__pychache__
+/moco/__pychache__
 
