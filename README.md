@@ -86,7 +86,7 @@ model.load_state_dict(checkpoint['model_state_dict'])
 
 where `n_out` should be 6269 for `TC-SAY-resnext`, 2765 for `TC-S-resnext`, 1786 for `TC-A-resnext`, and 1718 for `TC-Y-resnext`. The differences here are due to the different lengths of the datasets. 
 
-In addition, please find below the best performing ImageNet models reported above: a model with a linear classifier trained on top of the frozen features of `TC-SAY-resnext` (`TC-SAY-resnext-IN-linear`) and a model that was first fine-tuned with 1% of the ImageNet training data (`TC-SAY-resnext-IN-1pt-linear`):
+In addition, please find below the best performing ImageNet models reported above: a model with a linear ImageNet classifier trained on top of the frozen features of `TC-SAY-resnext` (`TC-SAY-resnext-IN-linear`) and a model that was first fine-tuned with 1% of the ImageNet training data (`TC-SAY-resnext-IN-1pt-linear`):
 
 * [`TC-SAY-resnext-IN-linear`](https://drive.google.com/file/d/1h6tV24CaBzYVgk0EmzRInYXB9PMVYZRo/view?usp=sharing)
 * [`TC-SAY-resnext-IN-1pt-linear`](https://drive.google.com/file/d/1Ue0LY8b6-wIUGa_PVAtyaRQdHCIh5HGt/view?usp=sharing)
