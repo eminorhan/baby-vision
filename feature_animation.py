@@ -65,7 +65,7 @@ def load_data(data_dir, args):
     normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
     train_dataset = datasets.ImageFolder(
         data_dir,
-        transforms.Compose([transforms.ToTensor(), normalize])
+        transforms.Compose([transforms.Resize(224), transforms.ToTensor(), normalize])
     )
 
     train_loader = torch.utils.data.DataLoader(
@@ -189,4 +189,4 @@ if __name__ == '__main__':
     ani = animation.ArtistAnimation(fig, imgs, interval=200, blit=True, repeat_delay=1000)
 
     # To save the animation, use e.g.
-    ani.save('mob_feature_animation_' + str(args.feature_idx) + '.mp4')
+    ani.save('intphys_feature_animation_' + str(args.feature_idx) + '.mp4')

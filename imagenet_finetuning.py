@@ -30,7 +30,7 @@ parser.add_argument('--lr', '--learning-rate', default=0.0005, type=float, metav
 parser.add_argument('--wd', '--weight-decay', default=0.0, type=float, metavar='W', help='weight decay (default: 0)',
                     dest='weight_decay')
 parser.add_argument('-p', '--print-freq', default=5000, type=int, metavar='N', help='print frequency (default: 100)')
-parser.add_argument('--schedule', default=[22, 24], nargs='*', type=int,
+parser.add_argument('--schedule', default=[23, 24], nargs='*', type=int,
                     help='learning rate schedule (when to drop lr by a ratio)')
 parser.add_argument('--resume', default='', type=str, metavar='PATH', help='path to latest checkpoint (default: none)')
 parser.add_argument('--world-size', default=-1, type=int, help='number of nodes for distributed training')
@@ -131,7 +131,7 @@ def main_worker(gpu, ngpus_per_node, args):
     # Save file name
     if args.resume:
         sv_name = args.resume
-        savefile_name = 'fz_IN_' + sv_name  # str(args.freeze_trunk) + 'fz_IN_' + sv_name[26:]
+        savefile_name = 'ft_IN_' + sv_name  # str(args.freeze_trunk) + 'fz_IN_' + sv_name[26:]
     else:
         savefile_name = str(args.freeze_trunk) + 'fz_IN_MobileNetV2_scratch.tar'
 

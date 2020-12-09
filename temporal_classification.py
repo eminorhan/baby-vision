@@ -26,16 +26,16 @@ parser.add_argument('--model', default='resnet50', choices=['resnet50', 'resnext
                                                             'mobilenet_v2'], help='model')
 parser.add_argument('-j', '--workers', default=32, type=int, metavar='N', help='number of data loading workers (default'
                                                                                ':16)')
-parser.add_argument('--epochs', default=12, type=int, metavar='N', help='number of total epochs to run')
+parser.add_argument('--epochs', default=16, type=int, metavar='N', help='number of total epochs to run')
 parser.add_argument('--start-epoch', default=0, type=int, metavar='N', help='manual epoch number (useful on restarts)')
 parser.add_argument('-b', '--batch-size', default=256, type=int, metavar='N',
-                    help='mini-batch size (default: 256), this is the total batch size of all GPUs on the current node '
+                    help='mini-batch size (default: 128), this is the total batch size of all GPUs on the current node '
                          'when using Data Parallel or Distributed Data Parallel')
 parser.add_argument('--lr', '--learning-rate', default=0.0005, type=float, metavar='LR', help='initial learning rate',
                     dest='lr')
 parser.add_argument('--wd', '--weight-decay', default=0.0, type=float, metavar='W', help='weight decay (default: 0)',
                     dest='weight_decay')
-parser.add_argument('-p', '--print-freq', default=5000, type=int, metavar='N', help='print frequency (default: 250)')
+parser.add_argument('-p', '--print-freq', default=10000, type=int, metavar='N', help='print frequency (default: 250)')
 parser.add_argument('--resume', default='', type=str, metavar='PATH', help='path to latest checkpoint (default: none)')
 parser.add_argument('--world-size', default=-1, type=int, help='number of nodes for distributed training')
 parser.add_argument('--rank', default=-1, type=int, help='node rank for distributed training')
@@ -114,12 +114,14 @@ def main_worker(gpu, ngpus_per_node, args):
         train_dataset = datasets.ImageFolder(
             args.data,
             transforms.Compose([
-                        transforms.RandomApply([transforms.ColorJitter(0.8, 0.8, 0.8, 0.4)], p=0.9),
+                        transforms.RandomResizedCrop(224, scale=(0.2, 1.)),
+                        transforms.RandomApply([transforms.ColorJitter(0.9, 0.9, 0.9, 0.5)], p=0.9),
                         transforms.RandomGrayscale(p=0.2),
                         transforms.RandomApply([GaussianBlur([.1, 2.])], p=0.5),
                         transforms.RandomHorizontalFlip(),
                         transforms.ToTensor(),
-                        normalize])
+                        normalize
+                        ])
         )
     else:
         train_dataset = datasets.ImageFolder(

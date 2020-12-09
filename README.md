@@ -44,13 +44,14 @@ For specific usage examples, please see the slurm scripts provided in the [`scri
 ### ResNeXt 
 Since the publication of the paper, we have found that training larger capacity models for longer with the temporal classification objective significantly improves the evaluation results. Hence, we provide below pre-trained `resnext50_32x4d` type models that are currently our best models trained with the SAYCam data. We encourage people to use these new models instead of the `mobilenet_v2` type models reported in the paper (the pre-trained `mobilenet_v2` models reported in the paper are also provided below for the record). 
 
-Four pre-trained `resnext50_32x4d` models are provided here: temporal classification models trained on data from the individual children in the SAYCam dataset (`TC-S-resnext`, `TC-A-resnext`, `TC-Y-resnext`) and a temporal classification model trained on data from all three children (`TC-SAY-resnext`). These models were all trained for 11 epochs (with batch size 256) with the following data augmentation pipeline:
+Four pre-trained `resnext50_32x4d` models are provided here: temporal classification models trained on data from the individual children in the SAYCam dataset (`TC-S-resnext`, `TC-A-resnext`, `TC-Y-resnext`) and a temporal classification model trained on data from all three children (`TC-SAY-resnext`). These models were all trained for 16 epochs (with batch size 256) with the following data augmentation pipeline:
 
 ```python
 import torchvision.transforms as tr
 
 tr.Compose([
-        tr.RandomApply([tr.ColorJitter(0.8, 0.8, 0.8, 0.4)], p=0.9),
+	tr.RandomResizedCrop(224, scale=(0.2, 1.)),
+        tr.RandomApply([tr.ColorJitter(0.9, 0.9, 0.9, 0.5)], p=0.9),
         tr.RandomGrayscale(p=0.2),
         tr.RandomApply([GaussianBlur([.1, 2.])], p=0.5),
         tr.RandomHorizontalFlip(),
@@ -59,16 +60,16 @@ tr.Compose([
 ])
 ```
 
-Here are some evaluation results for these `resnext50_32x4d` models (to download the models, click on the links over the model names):
+This data augmentation pipeline is similar to that used in [the SimCLR paper](https://arxiv.org/abs/2002.05709) with slightly larger random crops and slightly stronger color augmentation. Here are some evaluation results for these `resnext50_32x4d` models (to download the models, click on the links over the model names):
 
 | Model | Toybox (*iid*) | Toybox (*exemplar*) | ImageNet (*linear*) | ImageNet (*1% ft + linear*) | 
 | ----- |:--------------:|:-------------------:|:-------------------:|:---------------------------:|
-| [`TC-SAY-resnext`](https://drive.google.com/file/d/107pX69UW2iigRHHNu1iYnuwC4-dRvIM0/view?usp=sharing)  | **88.1** | **53.7** | **32.6** | **42.1** |
-| [`TC-S-resnext`](https://drive.google.com/file/d/1OXVgeskTtKqSiVCFwyIfJWWZ_B1X5-1a/view?usp=sharing)    | 85.2 | 49.2 | 29.2 | -- |
-| [`TC-A-resnext`](https://drive.google.com/file/d/1Jn-u_MYxCnfKskZvTNc_SDoFEa7E8xe4/view?usp=sharing)    | 85.0 | 48.1 | 26.5 | -- |
-| [`TC-Y-resnext`](https://drive.google.com/file/d/1jE55bbKpzUyuyDgr2aiFiSE1SMl6YYAg/view?usp=sharing)    | 82.9 | 49.6 | 24.8 | -- |
+| [`TC-SAY-resnext`](https://drive.google.com/file/d/1I-HvIeuupsE88yS6eff_nE6pHpEmTVPG/view?usp=sharing)  | **90.0** | **57.5** | **36.0** | **45.6** |
+| [`TC-S-resnext`](https://drive.google.com/file/d/14tZeOtK1Jd64ioxPwzwf2jblriN7Jgue/view?usp=sharing)    | 88.5 | 54.9 | -- | -- |
+| [`TC-A-resnext`](https://drive.google.com/file/d/1aQuWfb4O0xL0PALRJpYIUHk0tsyrujDF/view?usp=sharing)    | 86.8 | 50.4 | -- | -- |
+| [`TC-Y-resnext`](https://drive.google.com/file/d/1sB12pdnVEZsgVKiVdZyS0l4x24_T5zCj/view?usp=sharing)    | 87.0 | 53.0 | -- | -- |
 
-Here, **ImageNet (*linear*)** refers to the top-1 validation accuracy on ImageNet with only a linear classifier trained on top of the frozen features, and **ImageNet (*1% ft + linear*)** is similar but with the entire model first fine-tuned on 1% of the ImageNet training data (~12800 images). Note that these are results from a single run, so you might observe slightly different numbers.
+Here, **ImageNet (*linear*)** refers to the top-1 validation accuracy on ImageNet with only a linear classifier trained on top of the frozen features, and **ImageNet (*1% ft + linear*)** is similar but with the entire model first fine-tuned on 1% of the ImageNet training data (~12800 images). Note that these are results from a single run, so you may observe slightly different numbers.
 
 These models come with the temporal classification heads attached. To load these models, please do something along the lines of:
 
@@ -88,8 +89,8 @@ where `n_out` should be 6269 for `TC-SAY-resnext`, 2765 for `TC-S-resnext`, 1786
 
 In addition, please find below the best performing ImageNet models reported above: a model with a linear ImageNet classifier trained on top of the frozen features of `TC-SAY-resnext` (`TC-SAY-resnext-IN-linear`) and a model that was first fine-tuned with 1% of the ImageNet training data (`TC-SAY-resnext-IN-1pt-linear`):
 
-* [`TC-SAY-resnext-IN-linear`](https://drive.google.com/file/d/1h6tV24CaBzYVgk0EmzRInYXB9PMVYZRo/view?usp=sharing)
-* [`TC-SAY-resnext-IN-1pt-linear`](https://drive.google.com/file/d/1Ue0LY8b6-wIUGa_PVAtyaRQdHCIh5HGt/view?usp=sharing)
+* [`TC-SAY-resnext-IN-linear`](https://drive.google.com/file/d/1Qo0_1RwgOsr-JM3lP4ILWRY0WflnS7On/view?usp=sharing)
+* [`TC-SAY-resnext-IN-1pt-linear`](https://drive.google.com/file/d/1lvCG3L1_-gdqWDMD41yTIbuNBpzpUOQq/view?usp=sharing)
 
 You can load these models in the same way as described above. Since these are ImageNet models, `n_out` should be set to 1000.
 
